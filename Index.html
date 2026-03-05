@@ -1,1 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Jogo 2D</title>
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+}
+canvas {
+    display: block;
+    margin: auto;
+    background: #111;
+}
+</style>
+</head>
+<body>
 
+<canvas id="gameCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let player = {
+    x: canvas.width / 2,
+    y: canvas.height - 80,
+    size: 30,
+    speed: 7
+};
+
+let enemies = [];
+let score = 0;
+
+function spawnEnemy() {
+    let size = 30;
+    let x = Math.random() * (canvas.width - size);
+    enemies.push({
+        x: x,
+        y: -size,
+        size: size,
+        speed: 3 + Math.random() * 3
+    });
+}
+
+function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "blue";
+    ctx.fillRect(player.x, player.y, player.size, player.size);
+
+    ctx.fillStyle = "red";
+    enemies.forEach((enemy, index) => {
+        enemy.y += enemy.speed;
+        ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+
+        if (
+            player.x < enemy.x + enemy.size &&
+            player.x + player.size > enemy.x &&
+            player.y < enemy.y + enemy.size &&
+            player.y + player.size > enemy.y
+        ) {
+            alert("Game Over! Pontuação: " + score);
+            location.reload();
+        }
+
+        if (enemy.y > canvas.height) {
+            enemies.splice(index, 1);
+            score++;
+        }
+    });
+
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText("Pontuação: " + score, 20, 40);
+
+    requestAnimationFrame(update);
+}
+
+document.addEventListener("touchmove", function(e) {
+    player.x = e.touches[0].clientX - player.size / 2;
+});
+
+setInterval(spawnEnemy, 1000);
+update();
+</script>
+
+</body>
+</html>
